@@ -5,6 +5,10 @@ import java.awt.event.KeyEvent;
 import java.awt.image.ImageObserver;
 
 public class Main {
+
+    private static int dx = 1;
+    private static int dy = 1;
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame();
@@ -12,6 +16,7 @@ public class Main {
             frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.getContentPane().setBackground(Color.BLACK);
+            frame.setAlwaysOnTop(true);
 
             Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
@@ -40,6 +45,11 @@ public class Main {
             new Thread(() -> {
                 while (true) {
                     moveBox(box);
+                    try {
+                        Thread.sleep(5);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }).start();
         });
@@ -60,16 +70,13 @@ public class Main {
         int screenWidth = screenSize.width;
         int screenHeight = screenSize.height;
 
-        if (box.getX() + box.getWidth() < screenWidth) {
-            box.setLocation(box.getX() + 1, box.getY());
-        } else {
-            box.setLocation(0, box.getY());
+        if (box.getX() + dx < 0 || box.getX() + box.getWidth() + dx > screenWidth) {
+            dx = -dx;
+        }
+        if (box.getY() + dy < 0 || box.getY() + box.getHeight() + dy > screenHeight) {
+            dy = -dy;
         }
 
-        if (box.getY() + box.getHeight() < screenHeight) {
-            box.setLocation(box.getX(), box.getY() + 1);
-        } else {
-            box.setLocation(box.getX(), 0);
-        }
+        box.setLocation(box.getX() + dx, box.getY() + dy);
     }
 }
